@@ -1,0 +1,60 @@
+{
+  "configPath": "/Users/jerryseazia/Desktop/Development/claude/projects/prospecta/.trigger/tmp/build-x3ljqt/Desktop/Development/claude/projects/prospecta/trigger.config.mjs",
+  "customConditions": [
+  ],
+  "queues": [
+  ],
+  "runtime": "node",
+  "runtimeVersion": "25.6.0",
+  "tasks": [
+    {
+      "entryPoint": "/Users/jerryseazia/Desktop/Development/claude/projects/prospecta/.trigger/tmp/build-x3ljqt/Desktop/Development/claude/projects/prospecta/trigger/export-lead.mjs",
+      "filePath": "trigger/export-lead.ts",
+      "id": "export-lead",
+      "maxDuration": 300,
+      "retry": {
+        "factor": 2,
+        "maxAttempts": 3,
+        "maxTimeoutInMs": 60000,
+        "minTimeoutInMs": 2000,
+        "randomize": true
+      }
+    },
+    {
+      "entryPoint": "/Users/jerryseazia/Desktop/Development/claude/projects/prospecta/.trigger/tmp/build-x3ljqt/Desktop/Development/claude/projects/prospecta/trigger/pipeline.mjs",
+      "filePath": "trigger/pipeline.ts",
+      "id": "scrape-url",
+      "maxDuration": 300,
+      "retry": {
+        "factor": 2,
+        "maxAttempts": 2,
+        "maxTimeoutInMs": 60000,
+        "minTimeoutInMs": 3000,
+        "randomize": true
+      }
+    },
+    {
+      "entryPoint": "/Users/jerryseazia/Desktop/Development/claude/projects/prospecta/.trigger/tmp/build-x3ljqt/Desktop/Development/claude/projects/prospecta/trigger/pipeline.mjs",
+      "filePath": "trigger/pipeline.ts",
+      "id": "lead-pipeline",
+      "maxDuration": 300,
+      "retry": {
+        "factor": 2,
+        "maxAttempts": 3,
+        "maxTimeoutInMs": 30000,
+        "minTimeoutInMs": 5000
+      },
+      "schedule": {
+        "cron": "0 8 * * *",
+        "timezone": "UTC"
+      },
+      "triggerSource": "schedule"
+    }
+  ],
+  "timings": {
+    "trigger/export-lead.ts": 1.211541000000011,
+    "trigger/pipeline.ts": 0.5185830000000067,
+    "trigger/scrape-url.ts": 0.210708000000011
+  },
+  "workerEntryPoint": "/Users/jerryseazia/Desktop/Development/claude/projects/prospecta/.trigger/tmp/build-x3ljqt/.npm/_npx/f51a09bd0abf5f10/node_modules/trigger.dev/dist/esm/entryPoints/dev-run-worker.mjs"
+}

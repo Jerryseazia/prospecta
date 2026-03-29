@@ -197,15 +197,19 @@ export const leadPipeline = schedules.task({
   run: async () => {
     console.log("Starting Prospecta lead pipeline...");
 
-    // 1. Search all queries
+    // 1. Search all queries in parallel
+    const searchSettled = await Promise.allSettled(
+      SEARCH_QUERIES.map((query) => searchSerpApi(query))
+    );
+
     const allResults: Array<{ url: string; title: string; snippet: string }> = [];
-    for (const query of SEARCH_QUERIES) {
-      try {
-        const results = await searchSerpApi(query);
-        console.log(`Query "${query.slice(0, 50)}..." → ${results.length} results`);
-        allResults.push(...results);
-      } catch (err: any) {
-        console.error(`Search failed: ${err.message}`);
+    for (let i = 0; i < searchSettled.length; i++) {
+      const result = searchSettled[i];
+      if (result.status === "fulfilled") {
+        console.log(`Query "${SEARCH_QUERIES[i].slice(0, 50)}..." → ${result.value.length} results`);
+        allResults.push(...result.value);
+      } else {
+        console.error(`Search failed: ${result.reason?.message}`);
       }
     }
 

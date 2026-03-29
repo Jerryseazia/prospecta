@@ -215,6 +215,9 @@ export const leadPipeline = schedules.task({
       .filter((r) => r.url && !seen.has(r.url) && seen.add(r.url))
       .slice(0, 50); // cap at 50 across all sources
 
+    // Keep SerpAPI snippets as fallback for sites that block scraping (LinkedIn, Glassdoor, Indeed, etc.)
+    const snippetByUrl = new Map(uniqueUrls.map((r) => [r.url, { snippet: r.snippet, title: r.title }]));
+
     console.log(`Unique URLs to scrape: ${uniqueUrls.length}`);
 
     // 3. Scrape all URLs in parallel (batchTriggerAndWait)
@@ -225,9 +228,17 @@ export const leadPipeline = schedules.task({
     // 4. Qualify each scraped result
     const qualified = [];
     for (const run of scrapeResults.runs) {
-      if (!run.ok || run.output.skipped || !run.output.text) continue;
+      if (!run.ok) continue;
 
-      const { url, text, title } = run.output;
+      const { url, skipped, text: scrapedText, title: scrapedTitle } = run.output;
+      const fallback = snippetByUrl.get(url);
+
+      // Use full scraped text when available; fall back to SerpAPI snippet for blocked sites
+      const text = (!skipped && scrapedText) ? scrapedText : (fallback?.snippet ?? "");
+      const title = (!skipped && scrapedTitle) ? scrapedTitle : (fallback?.title ?? "");
+
+      if (!text) continue;
+      if (skipped) console.log(`Using snippet fallback for ${getSourcePlatform(url)}: ${url.slice(0, 60)}`);
       const { score: relevance, area } = scoreRelevance(text);
       const urgency = scoreUrgency(text);
       const caseValue = estimateCaseValue(text);

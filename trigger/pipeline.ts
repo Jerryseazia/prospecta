@@ -37,6 +37,12 @@ const SEARCH_QUERIES = [
   '"breach of contract" OR "fraud" OR "deceptive" "complaint" site:bbb.org',
   '"contractor" OR "home repair" "didn\'t complete" OR "took money" "complaint" site:bbb.org',
 
+  // Facebook — public posts (indexed by Google)
+  '"need a lawyer" OR "looking for an attorney" "accident" OR "injury" site:facebook.com',
+  '"wrongful termination" OR "fired" "need legal help" OR "what are my rights" site:facebook.com',
+  '"car accident" "insurance" "lawyer" OR "attorney" site:facebook.com',
+  '"slip and fall" OR "workplace injury" "lawyer" OR "sue" site:facebook.com',
+
   // General web — broad signals not tied to a single platform
   '"injured in accident" "lawsuit" OR "attorney" OR "suing"',
   '"medical malpractice" "lawsuit" OR "settlement" "need a lawyer"',
@@ -172,6 +178,7 @@ async function searchSerpApi(query: string): Promise<Array<{ url: string; title:
     num: "10",
     hl: "en",
     gl: "us",
+    tbs: "qdr:w", // past 7 days only
   });
 
   const res = await fetch(`https://serpapi.com/search?${params}`, {
